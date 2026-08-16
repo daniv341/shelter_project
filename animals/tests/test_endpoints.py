@@ -35,7 +35,7 @@ class TestListAnimals:
         Animal.objects.create(**{**make_payload(), "name": "B"})
 
         response = api_client.get("/api/animals/")
-
+        print(response)
         assert response.status_code == status.HTTP_200_OK
         assert response.data["count"] == 2
 

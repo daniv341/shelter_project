@@ -69,7 +69,7 @@ class Animal(models.Model):
     class Meta:
         ordering = ["-created_at"]
         verbose_name = "Animal"
-        verbose_name_plural = "Animales"
+        verbose_name_plural = "Animals"
 
     def __str__(self) -> str:
         return f"{self.name} ({self.species})"

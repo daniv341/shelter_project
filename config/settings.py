@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django_filters",
     # Apps propias
     "animals",
+    "caretakers",
 ]
 
 MIDDLEWARE = [
