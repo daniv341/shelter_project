@@ -15,7 +15,7 @@ from animals.filters import AnimalFilter
 from animals.serializers import AnimalReadSerializer, AnimalWriteSerializer
 from animals.services import AnimalService
 
-
+@extend_schema(tags=["Animals"])
 @extend_schema_view(
     list=extend_schema(
         summary="Listar animales",

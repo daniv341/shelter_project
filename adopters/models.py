@@ -3,13 +3,14 @@ from __future__ import annotations
 from django.db import models
 from ulid import ULID
 
+
 def generate_ulid() -> str:
     return str(ULID())
 
-class Caretaker(models.Model):
-    # definir un enum para el estado del caretaker
+
+class Adopter(models.Model):
+    # definir un enum para el estado de adopter
     class Status(models.TextChoices):
-        # el valor active se guardará en la base de datos, mientras que el valor "Activo" se mostrará en el admin
         ACTIVE = "active", "Activo"
         BLOCKED = "blocked", "Bloqueado"
 
@@ -30,9 +31,9 @@ class Caretaker(models.Model):
     # definir el orden por defecto y los nombres en singular y plural
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Caretaker"
-        verbose_name_plural = "Caretakers"
+        verbose_name = "Adopter"
+        verbose_name_plural = "Adopters"
 
-    # definir el método __str__ para mostrar el nombre completo y el email del caretaker
+    # definir el metodo __str__
     def __str__(self) -> str:
         return f"{self.full_name} ({self.email})"

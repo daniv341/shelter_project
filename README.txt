@@ -163,6 +163,10 @@ activado y el .env configurado:
 
     pytest
 
+Si deseas ejecutar los test sobre la bd real debes agregar la bandera --real-db al final del comando, cabe recalcar que usarla puede hacer que algunos test fallen, ya que algunos comprueban la existencia de una cantidad exacta de registros, si se ejecuta mas de una vez y no se hace rollback, fallaran porque existiran mas registros que esa cantidad, por lo cual se recomienda usar la bandera con archivos, clases o tests especificos:
+
+    pytest [test que quieras realizar] --real-db
+
 Esto ejecuta:
     - animals/tests/test_domain.py   -> pruebas de dominio
       (repository, selector y service, sin pasar por HTTP)

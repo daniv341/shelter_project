@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Apps propias
     "animals",
     "caretakers",
+    "adopters",
 ]
 
 MIDDLEWARE = [
@@ -149,8 +150,8 @@ REST_FRAMEWORK = {
 
 # --- drf-spectacular ---
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Sistema de Gestión de Refugio de Animales - API",
-    "DESCRIPTION": "API REST para la gestión de un refugio de animales.",
+    "TITLE": "Sistema de Gestión de Animal Shelter - API",
+    "DESCRIPTION": "API REST para la gestión de un animal shelter.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
