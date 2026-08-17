@@ -45,6 +45,10 @@ def make_optional_only_payload(**overrides) -> dict:
 def caretaker_payload() -> dict:
     return make_payload()
 
+@pytest.fixture
+def caretaker_optional_payload() -> dict:
+    return make_optional_only_payload()
+
 
 @pytest.fixture
 def created_caretaker(caretaker_payload, api_client) -> dict:
@@ -62,13 +66,12 @@ class TestCreateCaretaker:
         assert data["status"] == Caretaker.Status.ACTIVE
         assert "id" in data
 
-    def test_create_caretaker_without_optional_fields(self, api_client):
-        payload = make_optional_only_payload()
-        response = api_client.post("/api/caretakers/", payload, format="json")
+    def test_create_caretaker_without_optional_fields(self, caretaker_optional_payload, api_client):
+        response = api_client.post("/api/caretakers/", caretaker_optional_payload, format="json")
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
         assert data["status"] == Caretaker.Status.ACTIVE
-        assert data["full_name"] == payload["full_name"]
+        assert data["full_name"] == caretaker_optional_payload["full_name"]
 
     def test_create_caretaker_missing_required_field(self, caretaker_payload, api_client):
         payload = caretaker_payload.copy()
@@ -81,9 +84,8 @@ class TestCreateCaretaker:
         response = api_client.post("/api/caretakers/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_create_caretaker_returns_timestamps(self, api_client):
-        payload = make_optional_only_payload()
-        response = api_client.post("/api/caretakers/", payload, format="json")
+    def test_create_caretaker_returns_timestamps(self, caretaker_optional_payload, api_client):
+        response = api_client.post("/api/caretakers/", caretaker_optional_payload, format="json")
         data = response.data
         assert "created_at" in data
         assert "updated_at" in data

@@ -1,25 +1,15 @@
-"""
-serializers.py
-
-Validación y serialización de datos de entrada (write) y salida (read).
-
-Se usan dos serializers separados:
-- AnimalReadSerializer: representación completa de salida (incluye id,
-  timestamps y foto).
-- AnimalWriteSerializer: validación de entrada para create/update. No
-  incluye "photo" porque la API fuerza application/json como
-  content-type por defecto (ver REST_FRAMEWORK.DEFAULT_PARSER_CLASSES
-  en settings.py); la carga de archivos quedará como una extensión
-  futura con un endpoint/parser dedicado a multipart.
-"""
 from __future__ import annotations
 
 from rest_framework import serializers
 
 from animals.models import Animal
+from species.models import Species
+from species.serializers import SpeciesShortSerializer
 
 
 class AnimalReadSerializer(serializers.ModelSerializer):
+    # hace que species sea el serializers short que creaste en species
+    species = SpeciesShortSerializer(read_only=True)
     class Meta:
         model = Animal
         fields = [
@@ -40,6 +30,9 @@ class AnimalReadSerializer(serializers.ModelSerializer):
 
 
 class AnimalWriteSerializer(serializers.ModelSerializer):
+    # esta linea hace que species deba ser el atributo primario(id) del objeto Species
+    species = serializers.PrimaryKeyRelatedField(queryset=Species.objects.all())
+
     class Meta:
         model = Animal
         fields = [

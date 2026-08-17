@@ -24,7 +24,6 @@ from animals.services import AnimalService
         "adopción y estado médico.",
         parameters=[
             OpenApiParameter(name="species", description="Filtra por especie (contiene, case-insensitive)."),
-            OpenApiParameter(name="name", description="Filtra por nombre (contiene, case-insensitive)."),
             OpenApiParameter(name="sex", description="Filtra por sexo exacto."),
             OpenApiParameter(name="adoption_status", description="Filtra por estado de adopción exacto."),
             OpenApiParameter(name="medical_status", description="Filtra por estado médico exacto."),

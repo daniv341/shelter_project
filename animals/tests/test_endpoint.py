@@ -1,4 +1,5 @@
 from __future__ import annotations
+import random
 import time
 import uuid
 
@@ -7,47 +8,67 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from animals.models import Animal
+from species.models import Species
 
 pytestmark = pytest.mark.django_db
 
+# funcion que crea las species necesarias para probar animals
+@pytest.fixture
+def species_list(db):
+    return [
+        Species.objects.create(name="perro", status="active"),
+        Species.objects.create(name="gato", status="active"),
+        Species.objects.create(name="conejo", status="active"),
+    ]
 
 @pytest.fixture
 def api_client() -> APIClient:
     return APIClient()
 
+@pytest.fixture
+def make_payload(species_list):
+    def _make_payload(**overrides):
+        """Payload mínimo válido para crear un animal."""
+        species = random.choice(species_list)
+        payload = {
+            "name": "jasmin",
+            "species": species.id,
+            "sex": Animal.Sex.MALE,
+            "birth_date": "2002-08-17T19:16:27.889625",
+            "admission_date": "2026-08-17T19:16:27.889625",
+            "adoption_status": Animal.AdoptionStatus.AVAILABLE,
+            "medical_status": Animal.MedicalStatus.HEALTHY,
+            "description": "description de prueba",
+        }
 
-def make_payload(**overrides) -> dict:
-    """Payload minimo valido para crear un animal (todos los campos requeridos)."""
-    payload = {
-        "name": "jasmin",
-        "species": "Perro",
-        "sex": Animal.Sex.MALE,
-        "birth_date": "2002-08-17T19:16:27.889625",
-        "admission_date": "2026-08-17T19:16:27.889625",
-        "adoption_status": Animal.AdoptionStatus.AVAILABLE,
-        "medical_status": Animal.MedicalStatus.HEALTHY,
-        "description": "description de prueba",
-    }
-    payload.update(overrides)
-    return payload
+        payload.update(overrides)
+        return payload
 
-
-def make_optional_only_payload(**overrides) -> dict:
-    """Payload solo con los campos requeridos, sin los opcionales."""
-    payload = {
-        "name": "jasmin",
-        "species": "Perro",
-        "sex": Animal.Sex.MALE,
-        "adoption_status": Animal.AdoptionStatus.AVAILABLE,
-        "medical_status": Animal.MedicalStatus.HEALTHY,
-    }
-    payload.update(overrides)
-    return payload
-
+    return _make_payload
 
 @pytest.fixture
-def animal_payload() -> dict:
+def make_optional_only_payload(species_list):
+    def _make_optional_only_payload(**overrides) -> dict:
+        """Payload solo con los campos requeridos, sin los opcionales."""
+        species = random.choice(species_list)
+        payload = {
+            "name": "jasmin",
+            "species": species.id,
+            "sex": Animal.Sex.MALE,
+            "adoption_status": Animal.AdoptionStatus.AVAILABLE,
+            "medical_status": Animal.MedicalStatus.HEALTHY,
+        }
+        payload.update(overrides)
+        return payload
+    return _make_optional_only_payload
+
+@pytest.fixture
+def animal_payload(make_payload) -> dict:
     return make_payload()
+
+@pytest.fixture
+def animal_optional_payload(make_optional_only_payload) -> dict:
+    return make_optional_only_payload()
 
 
 @pytest.fixture
@@ -66,13 +87,12 @@ class TestCreateAnimal:
         assert data["adoption_status"] == Animal.AdoptionStatus.AVAILABLE
         assert "id" in data
 
-    def test_create_animal_without_optional_fields(self, api_client):
-        payload = make_optional_only_payload()
-        response = api_client.post("/api/animals/", payload, format="json")
+    def test_create_animal_without_optional_fields(self, animal_optional_payload, api_client):
+        response = api_client.post("/api/animals/", animal_optional_payload, format="json")
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
         assert data["adoption_status"] == Animal.AdoptionStatus.AVAILABLE
-        assert data["name"] == payload["name"]
+        assert data["name"] == animal_optional_payload["name"]
 
     def test_create_animal_missing_required_field(self, animal_payload, api_client):
         payload = animal_payload.copy()
@@ -85,9 +105,8 @@ class TestCreateAnimal:
         response = api_client.post("/api/animals/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_create_animal_returns_timestamps(self, api_client):
-        payload = make_optional_only_payload()
-        response = api_client.post("/api/animals/", payload, format="json")
+    def test_create_animal_returns_timestamps(self, animal_optional_payload,  api_client):
+        response = api_client.post("/api/animals/", animal_optional_payload, format="json")
         data = response.data
         assert "created_at" in data
         assert "updated_at" in data

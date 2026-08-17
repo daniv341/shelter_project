@@ -10,15 +10,9 @@ from django.db import models
 from django.utils import timezone
 from ulid import ULID
 
+from species.models import Species
 
 def generate_ulid() -> str:
-    """Genera un ULID como string, usado como PK del modelo Animal.
-
-    Se eligió ULID (en vez de UUID o autoincremental) porque es
-    ordenable lexicográficamente por tiempo de creación, lo cual es
-    útil para paginar/ordenar sin depender de un campo adicional,
-    y evita exponer IDs secuenciales predecibles.
-    """
     return str(ULID())
 
 
@@ -47,7 +41,8 @@ class Animal(models.Model):
         editable=False,
     )
     name = models.CharField(max_length=150)
-    species = models.CharField(max_length=100)
+    # asi se hace la relación con species, y se evita que si borras una especie, se borren los animales asociados
+    species = models.ForeignKey(Species, on_delete=models.PROTECT, related_name="animals", db_index=True)
     sex = models.CharField(max_length=10, choices=Sex.choices)
     birth_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
     admission_date = models.DateTimeField(default=timezone.now, null=True, blank=True)

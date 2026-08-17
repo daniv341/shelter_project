@@ -21,4 +21,5 @@ class AnimalSelector:
         return get_object_or_404(Animal, pk=animal_id)
 
     def get_all(self) -> QuerySet[Animal]:
-        return Animal.objects.all()
+        # retorna todos los animales, con species ya cargado para evitar N+1 queries
+        return Animal.objects.select_related("species")

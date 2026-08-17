@@ -9,6 +9,11 @@ class SpeciesReadSerializer(serializers.ModelSerializer):
         # hacer que todos los campos sean de solo lectura
         read_only_fields = fields
 
+# serializers de lectura que se puede usar en otros objetos que dependan de species
+class SpeciesShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Species
+        fields = ["id", "name"]
 
 # serializer para escribir los datos de un species
 class SpeciesWriteSerializer(serializers.ModelSerializer):

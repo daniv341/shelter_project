@@ -12,9 +12,8 @@ from animals.models import Animal
 
 
 class AnimalFilter(django_filters.FilterSet):
-    species = django_filters.CharFilter(field_name="species", lookup_expr="icontains")
-    name = django_filters.CharFilter(field_name="name", lookup_expr="icontains")
+    species = django_filters.CharFilter(field_name="species_id")
 
     class Meta:
         model = Animal
-        fields = ["species", "name", "sex", "adoption_status", "medical_status"]
+        fields = ["species", "sex", "adoption_status", "medical_status"]

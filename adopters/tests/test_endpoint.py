@@ -46,6 +46,10 @@ def make_optional_only_payload(**overrides) -> dict:
 def adopter_payload() -> dict:
     return make_payload()
 
+@pytest.fixture
+def adopter_optional_ayload() -> dict:
+    return make_optional_only_payload()
+
 
 @pytest.fixture
 def created_adopter(adopter_payload, api_client) -> dict:
@@ -63,13 +67,12 @@ class TestCreateAdopter:
         assert data["status"] == Adopter.Status.ACTIVE
         assert "id" in data
 
-    def test_create_adopter_without_optional_fields(self, api_client):
-        payload = make_optional_only_payload()
-        response = api_client.post("/api/adopters/", payload, format="json")
+    def test_create_adopter_without_optional_fields(self, adopter_optional_ayload, api_client):
+        response = api_client.post("/api/adopters/", adopter_optional_ayload, format="json")
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
         assert data["status"] == Adopter.Status.ACTIVE
-        assert data["full_name"] == payload["full_name"]
+        assert data["full_name"] == adopter_optional_ayload["full_name"]
 
     def test_create_adopter_missing_required_field(self, adopter_payload, api_client):
         payload = adopter_payload.copy()
@@ -82,9 +85,8 @@ class TestCreateAdopter:
         response = api_client.post("/api/adopters/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_create_adopter_returns_timestamps(self, api_client):
-        payload = make_optional_only_payload()
-        response = api_client.post("/api/adopters/", payload, format="json")
+    def test_create_adopter_returns_timestamps(self, adopter_optional_ayload, api_client):
+        response = api_client.post("/api/adopters/", adopter_optional_ayload, format="json")
         data = response.data
         assert "created_at" in data
         assert "updated_at" in data
