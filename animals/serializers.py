@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from rest_framework import serializers
 
-from animals.models import Animal
 from species.models import Species
+
+from animals.models import Animal
 from species.serializers import SpeciesShortSerializer
 
 
@@ -28,11 +29,15 @@ class AnimalReadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+# serializers de lectura que se puede usar en otros objetos que dependan de animals
+class AnimalShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Animal
+        fields = ["id", "name", "sex"]
 
 class AnimalWriteSerializer(serializers.ModelSerializer):
     # esta linea hace que species deba ser el atributo primario(id) del objeto Species
     species = serializers.PrimaryKeyRelatedField(queryset=Species.objects.all())
-
     class Meta:
         model = Animal
         fields = [

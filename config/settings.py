@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     "caretakers",
     "adopters",
     "species",
-    "veterinarians"
+    "veterinarians",
+    "vaccination_records",
 ]
 
 MIDDLEWARE = [
