@@ -20,7 +20,11 @@ def api_client() -> APIClient:
 def make_payload(**overrides) -> dict:
     """Payload minimo valido para crear un veterinatian (todos los campos requeridos)."""
     payload = {
-        "name": "Texto de prueba",
+        "full_name": "nombre de prueba",
+        "dni": f"{uuid.uuid4().int % 10000000}",
+        "email": f"test_{uuid.uuid4().hex[:5]}@gmail.com",
+        "phone": "381123456",
+        "status": Veterinatian.Status.ACTIVE,
     }
     payload.update(overrides)
     return payload
@@ -29,7 +33,9 @@ def make_payload(**overrides) -> dict:
 def make_optional_only_payload(**overrides) -> dict:
     """Payload solo con los campos requeridos, sin los opcionales."""
     payload = {
-        "name": "Texto de prueba",
+        "full_name": "nombre de prueba",
+        "dni": f"{uuid.uuid4().int % 10000000}",
+        "status": Veterinatian.Status.ACTIVE,
     }
     payload.update(overrides)
     return payload
@@ -52,7 +58,7 @@ class TestCreateVeterinatian:
         response = api_client.post("/api/veterinarians/", veterinatian_payload, format="json")
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
-        assert data["name"] == veterinatian_payload["name"]
+        assert data["full_name"] == veterinatian_payload["full_name"]
         assert data["status"] == Veterinatian.Status.ACTIVE
         assert "id" in data
 
@@ -62,16 +68,16 @@ class TestCreateVeterinatian:
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
         assert data["status"] == Veterinatian.Status.ACTIVE
-        assert data["name"] == payload["name"]
+        assert data["full_name"] == payload["full_name"]
 
     def test_create_veterinatian_missing_required_field(self, veterinatian_payload, api_client):
         payload = veterinatian_payload.copy()
-        del payload["name"]
+        del payload["full_name"]
         response = api_client.post("/api/veterinarians/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_create_veterinatian_empty_required_field(self, veterinatian_payload, api_client):
-        payload = {**veterinatian_payload, "name": ""}
+        payload = {**veterinatian_payload, "full_name": ""}
         response = api_client.post("/api/veterinarians/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -102,7 +108,7 @@ class TestGetAllVeterinarians:
         results = response.data["results"]
         item = next((p for p in results if p["id"] == created_veterinatian["id"]), None)
         assert item is not None
-        for field in ("name",):
+        for field in ("full_name",):
             assert field in item
 
     def test_get_all_filtering_by_status(self, created_veterinatian, api_client):
@@ -128,7 +134,7 @@ class TestGetVeterinatianById:
     def test_get_veterinatian_by_id_returns_correct_data(self, created_veterinatian, api_client):
         response = api_client.get(f"/api/veterinarians/{created_veterinatian['id']}/")
         data = response.data
-        assert data["name"] == created_veterinatian["name"]
+        assert data["full_name"] == created_veterinatian["full_name"]
 
 
 class TestUpdateVeterinatian:
@@ -152,7 +158,7 @@ class TestUpdateVeterinatian:
         veterinatian_id = created_veterinatian["id"]
         original_updated_at = created_veterinatian["updated_at"]
         time.sleep(2)
-        api_client.patch(f"/api/veterinarians/{veterinatian_id}/", {"name": "Valor actualizado"}, format="json")
+        api_client.patch(f"/api/veterinarians/{veterinatian_id}/", {"full_name": "nombre actualizado"}, format="json")
         response = api_client.get(f"/api/veterinarians/{veterinatian_id}/")
         new_updated_at = response.data["updated_at"]
         assert new_updated_at > original_updated_at

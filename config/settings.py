@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     "animals",
     "caretakers",
     "adopters",
-    "species"
+    "species",
+    "veterinarians"
 ]
 
 MIDDLEWARE = [

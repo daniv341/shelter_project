@@ -20,8 +20,11 @@ class Veterinatian(models.Model):
             default=generate_ulid,
             editable=False,
         )
-    name = models.CharField(max_length=200)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    full_name = models.CharField(max_length=200)
+    dni = models.CharField(max_length=20, unique=True)
+    email = models.EmailField(unique=True, blank=True)
+    phone = models.CharField(max_length=30, blank=True)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,4 +36,4 @@ class Veterinatian(models.Model):
 
     # definir el metodo __str__
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f"{self.full_name} ({self.email})"

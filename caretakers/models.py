@@ -21,7 +21,7 @@ class Caretaker(models.Model):
         )
     full_name = models.CharField(max_length=200)
     dni = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=True)
     phone = models.CharField(max_length=30, blank=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)

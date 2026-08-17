@@ -34,7 +34,6 @@ def make_optional_only_payload(**overrides) -> dict:
     payload = {
         "full_name": "nombre de prueba",
         "dni": f"{uuid.uuid4().int % 10000000}",
-        "email": f"test_{uuid.uuid4().hex[:5]}@gmail.com",
         "status": Caretaker.Status.ACTIVE,
     }
     payload.update(overrides)
