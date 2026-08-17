@@ -1,4 +1,5 @@
 from __future__ import annotations
+import time
 import uuid
 
 import pytest
@@ -56,9 +57,6 @@ def created_adopter(adopter_payload, api_client) -> dict:
 class TestCreateAdopter:
     def test_create_adopter_success(self, adopter_payload, api_client):
         response = api_client.post("/api/adopters/", adopter_payload, format="json")
-        print("STATUS:", response.status_code)
-        print("COUNT:", Adopter.objects.count())
-        print("ADOPTERS:", list(Adopter.objects.values()))
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
         assert data["full_name"] == adopter_payload["full_name"]
@@ -160,10 +158,11 @@ class TestUpdateAdopter:
     def test_update_adopter_updates_updated_at(self, created_adopter, api_client):
         adopter_id = created_adopter["id"]
         original_updated_at = created_adopter["updated_at"]
+        time.sleep(2)
         api_client.patch(f"/api/adopters/{adopter_id}/", {"full_name": "nuevo nombre"}, format="json")
         response = api_client.get(f"/api/adopters/{adopter_id}/")
         new_updated_at = response.data["updated_at"]
-        assert new_updated_at >= original_updated_at
+        assert new_updated_at > original_updated_at
 
     def test_update_adopter_invalid_status(self, created_adopter, api_client):
         response = api_client.patch(
