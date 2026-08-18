@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "veterinarians",
     "vaccination_records",
     "medical_treatments",
+    "adoption_applications",
 ]
 
 MIDDLEWARE = [
