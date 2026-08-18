@@ -100,6 +100,12 @@ class TestCreateVaccinationRecord:
         response = api_client.post("/api/vaccination_records/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
+    def test_create_vaccination_record_with_invalid_date(
+        self, make_payload, api_client) -> None:
+        payload = make_payload(applied_at="17-08-2026 19:16:27")
+        response = api_client.post("/api/vaccination_records/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
     def test_create_vaccination_record_returns_timestamps(self, vaccination_record_optional_payload, api_client):
         response = api_client.post("/api/vaccination_records/", vaccination_record_optional_payload, format="json")
         data = response.data

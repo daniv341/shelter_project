@@ -7,7 +7,6 @@ from species.models import Species
 from animals.models import Animal
 from species.serializers import SpeciesShortSerializer
 
-
 class AnimalReadSerializer(serializers.ModelSerializer):
     # hace que species sea el serializers short que creaste en species
     species = SpeciesShortSerializer(read_only=True)
@@ -55,3 +54,5 @@ class AnimalWriteSerializer(serializers.ModelSerializer):
         # Al finalizar un create/update, se responde con la
         # representación completa de lectura (incluye id, timestamps, etc.)
         return AnimalReadSerializer(instance, context=self.context).data
+
+

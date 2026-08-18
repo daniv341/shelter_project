@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from django.db import models
 from ulid import ULID
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 def generate_ulid() -> str:
     return str(ULID())
 
 
-class Veterinatian(models.Model):
-    # definir un enum para el estado de veterinatian
+class Veterinarian(models.Model):
+    # definir un enum para el estado de veterinarian
     class Status(models.TextChoices):
         ACTIVE = "active", "Activo"
         BLOCKED = "blocked", "Bloqueado"
@@ -21,9 +21,9 @@ class Veterinatian(models.Model):
             editable=False,
         )
     full_name = models.CharField(max_length=200)
-    dni = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(unique=True, blank=True)
-    phone = models.CharField(max_length=30, blank=True)
+    dni = models.PositiveBigIntegerField(unique=True, validators=[MinValueValidator(1_000_000), MaxValueValidator(99_999_999)])
+    email = models.EmailField(unique=True, blank=True, null=True)
+    phone = models.PositiveBigIntegerField(unique=True, validators=[MinValueValidator(100_000)], blank=True, null=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -31,7 +31,7 @@ class Veterinatian(models.Model):
     # definir el orden por defecto y los nombres en singular y plural
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Veterinatian"
+        verbose_name = "Veterinarian"
         verbose_name_plural = "Veterinarians"
 
     # definir el metodo __str__

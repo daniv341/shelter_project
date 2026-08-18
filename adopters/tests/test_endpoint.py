@@ -1,4 +1,5 @@
 from __future__ import annotations
+import random
 import time
 import uuid
 
@@ -21,9 +22,9 @@ def make_payload(**overrides) -> dict:
     """Payload minimo valido para crear un adopter (todos los campos requeridos)."""
     payload = {
         "full_name": "nombre de prueba",
-        "dni": f"{uuid.uuid4().int % 10000000}",
+        "dni": random.randint(1_000_000, 99_999_999),
         "email": f"test_{uuid.uuid4().hex[:5]}@gmail.com",
-        "phone": "381123456",
+        "phone": random.randint(100_000, 999_999_999),
         "status": Adopter.Status.ACTIVE,
     }
     payload.update(overrides)
@@ -34,7 +35,7 @@ def make_optional_only_payload(**overrides) -> dict:
     """Payload solo con los campos requeridos, sin los opcionales."""
     payload = {
         "full_name": "nombre de prueba",
-        "dni": f"{uuid.uuid4().int % 10000000}",
+        "dni": random.randint(1_000_000, 99_999_999),
         "status": Adopter.Status.ACTIVE,
     }
     payload.update(overrides)

@@ -14,7 +14,6 @@ class VaccinationRecordReadSerializer(serializers.ModelSerializer):
         # hacer que todos los campos sean de solo lectura
         read_only_fields = fields
 
-
 # serializer para escribir los datos de un vaccination_record
 class VaccinationRecordWriteSerializer(serializers.ModelSerializer):
     animal = serializers.PrimaryKeyRelatedField(queryset=Animal.objects.all())

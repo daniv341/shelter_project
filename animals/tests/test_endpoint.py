@@ -40,7 +40,6 @@ def make_payload(species_list):
             "medical_status": Animal.MedicalStatus.HEALTHY,
             "description": "description de prueba",
         }
-
         payload.update(overrides)
         return payload
 
@@ -102,6 +101,12 @@ class TestCreateAnimal:
 
     def test_create_animal_empty_required_field(self, animal_payload, api_client):
         payload = {**animal_payload, "name": ""}
+        response = api_client.post("/api/animals/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_animal_with_invalid_date(
+        self, make_payload, api_client) -> None:
+        payload = make_payload(birth_date="17-08-2026 19:16:27")
         response = api_client.post("/api/animals/", payload, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 

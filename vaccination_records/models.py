@@ -26,7 +26,7 @@ class VaccinationRecord(models.Model):
     name = models.CharField(max_length=200)
     animal = models.ForeignKey(Animal, on_delete=models.CASCADE, related_name="vaccination_records", db_index=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    applied_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    applied_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

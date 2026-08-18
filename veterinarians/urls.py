@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
-from veterinarians.views import VeterinatianViewSet
+from veterinarians.views import VeterinarianViewSet
 
 router = DefaultRouter()
-router.register("veterinarians", VeterinatianViewSet, basename="veterinatian")
+router.register("veterinarians", VeterinarianViewSet, basename="veterinarian")
 urlpatterns = router.urls

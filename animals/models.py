@@ -44,7 +44,7 @@ class Animal(models.Model):
     # asi se hace la relación con species, y se evita que si borras una especie, se borren los animales asociados
     species = models.ForeignKey(Species, on_delete=models.PROTECT, related_name="animals", db_index=True)
     sex = models.CharField(max_length=10, choices=Sex.choices)
-    birth_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    birth_date = models.DateTimeField(null=True, blank=True)
     admission_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
     adoption_status = models.CharField(
         max_length=20,

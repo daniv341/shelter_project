@@ -23,7 +23,7 @@ from animals.services import AnimalService
         "con soporte de filtros por especie, nombre, sexo, estado de "
         "adopción y estado médico.",
         parameters=[
-            OpenApiParameter(name="species", description="Filtra por especie (contiene, case-insensitive)."),
+            OpenApiParameter(name="species", description="Filtra por id de especie (contiene, case-insensitive)."),
             OpenApiParameter(name="sex", description="Filtra por sexo exacto."),
             OpenApiParameter(name="adoption_status", description="Filtra por estado de adopción exacto."),
             OpenApiParameter(name="medical_status", description="Filtra por estado médico exacto."),
@@ -32,6 +32,10 @@ from animals.services import AnimalService
     retrieve=extend_schema(
         summary="Obtener un animal",
         description="Devuelve el detalle de un animal por su id (ULID).",
+    ),
+    vaccination_records=extend_schema(
+        summary="Obtener un animal y sus vacunas",
+        description="Devuelve el detalle de un animal y sus vacunas por su id (ULID).",
     ),
     create=extend_schema(
         summary="Registrar un animal",

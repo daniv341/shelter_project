@@ -12,6 +12,7 @@ from vaccination_records.services import VaccinationRecordService
         summary="Listar vaccination_records",
         description="Devuelve la lista paginada de vaccination_records.",
         parameters=[
+            OpenApiParameter(name="animal", description="Filtra por id de animal exacto."),
             OpenApiParameter(name="status", description="Filtra por estado exacto."),
         ],
     ),
