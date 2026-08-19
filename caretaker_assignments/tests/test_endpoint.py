@@ -80,8 +80,6 @@ def created_caretaker_assignment(caretaker_assignment_payload, api_client) -> di
 class TestCreateCaretakerAssignment:
     def test_create_caretaker_assignment_success(self, caretaker_assignment_payload, api_client):
         response = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
-        print(response.json)
-        print(response.data)
         assert response.status_code == status.HTTP_201_CREATED
         data = response.data
         assert data["caretaker"]["id"] == caretaker_assignment_payload["caretaker"]
