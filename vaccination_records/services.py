@@ -1,7 +1,11 @@
 from __future__ import annotations
 from typing import Any
+
 from vaccination_records.repositories import VaccinationRecordRepository
 from vaccination_records.selectors import VaccinationRecordSelector
+
+from jsonschema import ValidationError
+from animals.models import Animal
 
 
 class VaccinationRecordService:
@@ -16,6 +20,9 @@ class VaccinationRecordService:
         return self.selector.get_by_id(vaccination_record_id)
 
     def create_vaccination_record(self, data: dict[str, Any]):
+        animal = self.animal_repository.get_by_id(data["animal"])
+        if animal.adoption_status == Animal.AdoptionStatus.ADOPTED:
+            raise ValidationError("An adopted animal cannot receive new vaccinations.")
         return self.repository.create(data)
 
     def update_vaccination_record(self, vaccination_record_id: str, data: dict[str, Any]):

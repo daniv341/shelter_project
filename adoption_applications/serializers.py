@@ -16,6 +16,10 @@ class AdoptionApplicationReadSerializer(serializers.ModelSerializer):
         # hacer que todos los campos sean de solo lectura
         read_only_fields = fields
 
+class AdoptionApplicationShoirtSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdoptionApplication
+        fields = ["id", "submitted_at"]
 
 # serializer para escribir los datos de un adoption_application
 class AdoptionApplicationWriteSerializer(serializers.ModelSerializer):

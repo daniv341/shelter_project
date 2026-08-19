@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.db.models import QuerySet
+from jsonschema import ValidationError
 
 from animals.models import Animal
 from animals.repositories import AnimalRepository
@@ -34,13 +35,12 @@ class AnimalService:
         return self.selector.get_by_id(animal_id)
 
     def create_animal(self, data: dict[str, Any]) -> Animal:
-        # Punto de extensión: aquí irían reglas de negocio adicionales
-        # (p.ej. validaciones cruzadas, notificaciones, auditoría) antes
-        # de persistir el animal.
         return self.repository.create(data)
 
     def update_animal(self, animal_id: str, data: dict[str, Any]) -> Animal:
         animal = self.selector.get_by_id(animal_id)
+        #if animal.adoption_status == Animal.AdoptionStatus.ADOPTED:
+        #    raise ValidationError("An adopted animal cannot be modified.")  
         return self.repository.update(animal, data)
 
     def delete_animal(self, animal_id: str) -> None:

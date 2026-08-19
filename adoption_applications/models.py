@@ -17,6 +17,7 @@ class AdoptionApplication(models.Model):
         SUBMITTED = "submitted", "Enviada"
         REVISION = "revision", "Revision"
         REJECTED = "rejected", "Rechazada"
+        CLOSED = "closed", "Cerrado"
 
     id = models.CharField(
             primary_key=True,

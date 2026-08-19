@@ -42,7 +42,7 @@ def make_payload(animal, adopter):
             "status": AdoptionApplication.Status.SUBMITTED,
             "submitted_at": "2026-08-17T19:16:27.889625",
             "reviewed_at": "2026-09-17T19:16:27.889625",
-            "description": "nota de prueba",
+            "notes": "nota de prueba",
         }
         payload.update(overrides)
         return payload
