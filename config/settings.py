@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "medical_treatments",
     "adoption_applications",
     "adoption_events",
+    "caretaker_assignments",
 ]
 
 MIDDLEWARE = [

@@ -11,6 +11,7 @@ from django.utils import timezone
 from ulid import ULID
 
 from species.models import Species
+from caretakers.models import Caretaker
 
 def generate_ulid() -> str:
     return str(ULID())
@@ -58,6 +59,8 @@ class Animal(models.Model):
     )
     description = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to="animals/photos/", blank=True, null=True)
+    # relacion N:N primero el objeto con el que tiene la relacion, luego la tabla intermedia(en este caso esa tabla tiene atributos propios) que se la pone entre comillas ya que si importas el modelo, crea una importaion circular,
+    caretakers = models.ManyToManyField(Caretaker, through="caretaker_assignments.CaretakerAssignment", related_name="animals", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

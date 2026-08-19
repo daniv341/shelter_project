@@ -24,9 +24,9 @@ class AdoptionEvent(models.Model):
             default=generate_ulid,
             editable=False,
         )
-    animal = models.ForeignKey(Animal, on_delete=models.PROTECT, related_name="adoption_event", db_index=True)
-    adopter = models.ForeignKey(Adopter, on_delete=models.PROTECT, related_name="adoption_event", db_index=True)
-    adoption_application = models.ForeignKey(AdoptionApplication, on_delete=models.PROTECT, related_name="adoption_event", db_index=True, unique=True)
+    animal = models.ForeignKey(Animal, on_delete=models.PROTECT, related_name="adoption_events", db_index=True)
+    adopter = models.ForeignKey(Adopter, on_delete=models.PROTECT, related_name="adoption_events", db_index=True)
+    adoption_application = models.ForeignKey(AdoptionApplication, on_delete=models.PROTECT, related_name="adoption_events", db_index=True, unique=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ONGOING)
     adopted_at = models.DateTimeField(blank=True, null=True)
     notes = models.CharField(max_length=350, blank=True, null=True)

@@ -9,6 +9,11 @@ class CaretakerReadSerializer(serializers.ModelSerializer):
         # hacer que todos los campos sean de solo lectura
         read_only_fields = fields
 
+class CaretakerShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Caretaker
+        fields = ["id", "full_name", "dni"]
+
 # serializer para escribir los datos de un caretaker
 class CaretakerWriteSerializer(serializers.ModelSerializer):
     class Meta:
