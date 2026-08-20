@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "adoption_events",
     "caretaker_assignments",
     "donations",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,8 @@ else:
         }
     }
 
+AUTH_USER_MODEL = "users.User"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -163,6 +166,16 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            },
+        },
+    },
 }
 
 # --- Simple JWT (configuración lista para cuando se active la autenticación) ---

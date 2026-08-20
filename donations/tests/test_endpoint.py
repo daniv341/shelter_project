@@ -181,8 +181,8 @@ class TestUpdateDonation:
 
 class TestDeleteDonation:
     def test_delete_donation_by_id_success(self, donation_payload, api_client):
-        create_resp = api_client.post("/api/donations/", donation_payload, format="json")
-        donation_id = create_resp.data["id"]
+        response = api_client.post("/api/donations/", donation_payload, format="json")
+        donation_id = response.data["id"]
 
         delete_resp = api_client.delete(f"/api/donations/{donation_id}/")
         assert delete_resp.status_code == status.HTTP_204_NO_CONTENT
@@ -195,8 +195,8 @@ class TestDeleteDonation:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_delete_donation_by_id_idempotent(self, donation_payload, api_client):
-        create_resp = api_client.post("/api/donations/", donation_payload, format="json")
-        donation_id = create_resp.data["id"]
+        response = api_client.post("/api/donations/", donation_payload, format="json")
+        donation_id = response.data["id"]
         api_client.delete(f"/api/donations/{donation_id}/")
         second_delete = api_client.delete(f"/api/donations/{donation_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND

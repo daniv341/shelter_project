@@ -45,3 +45,32 @@ def allow_real_db(request, django_db_blocker):
             yield
     else:
         yield
+
+
+#fixture para autenticar un user, usar create y no create_user para ahorrarse el hashing, ya que esto lo hace mas lento
+@pytest.fixture
+def authenticated_client(api_client, django_user_model):
+    user = django_user_model.objects.create(
+        user_name="test_user",
+        email="test@example.com",
+        password="holis",
+    )
+
+    api_client.force_authenticate(user=user)
+
+    return api_client
+
+
+#fixture para autenticar un staff, usar create y no create_user para ahorrarse el hashing, ya que esto lo hace mas lento
+@pytest.fixture
+def staff_client(api_client, django_user_model):
+    user = django_user_model.objects.create(
+        user_name="staff_user",
+        email="staff@example.com",
+        password="holis",
+        is_staff=True,
+    )
+
+    api_client.force_authenticate(user=user)
+
+    return api_client

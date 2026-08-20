@@ -194,8 +194,8 @@ class TestUpdateCaretakerAssignment:
 
 class TestDeleteCaretakerAssignment:
     def test_delete_caretaker_assignment_by_id_success(self, caretaker_assignment_payload, api_client):
-        create_resp = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
-        caretaker_assignment_id = create_resp.data["id"]
+        response = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
+        caretaker_assignment_id = response.data["id"]
 
         delete_resp = api_client.delete(f"/api/caretaker_assignments/{caretaker_assignment_id}/")
         assert delete_resp.status_code == status.HTTP_204_NO_CONTENT
@@ -208,8 +208,8 @@ class TestDeleteCaretakerAssignment:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_delete_caretaker_assignment_by_id_idempotent(self, caretaker_assignment_payload, api_client):
-        create_resp = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
-        caretaker_assignment_id = create_resp.data["id"]
+        response = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
+        caretaker_assignment_id = response.data["id"]
         api_client.delete(f"/api/caretaker_assignments/{caretaker_assignment_id}/")
         second_delete = api_client.delete(f"/api/caretaker_assignments/{caretaker_assignment_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND

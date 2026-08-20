@@ -10,6 +10,7 @@ from __future__ import annotations
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
+from users.permissions import IsActiveUser
 
 from animals.filters import AnimalFilter
 from animals.serializers import AnimalReadSerializer, AnimalWriteSerializer
@@ -32,10 +33,6 @@ from animals.services import AnimalService
     retrieve=extend_schema(
         summary="Obtener un animal",
         description="Devuelve el detalle de un animal por su id (ULID).",
-    ),
-    vaccination_records=extend_schema(
-        summary="Obtener un animal y sus vacunas",
-        description="Devuelve el detalle de un animal y sus vacunas por su id (ULID).",
     ),
     create=extend_schema(
         summary="Registrar un animal",
@@ -68,10 +65,11 @@ class AnimalViewSet(
     delegan al AnimalService, que a su vez usa el repository. Esto
     mantiene la vista libre de lógica de negocio.
     """
-
     lookup_field = "id"
     filter_backends = [DjangoFilterBackend]
     filterset_class = AnimalFilter
+    #proteccion de los endpoints
+    permission_classes = [IsActiveUser]
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

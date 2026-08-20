@@ -175,8 +175,8 @@ class TestUpdateAdopter:
 
 class TestDeleteAdopter:
     def test_delete_adopter_by_id_success(self, adopter_payload, api_client):
-        create_resp = api_client.post("/api/adopters/", adopter_payload, format="json")
-        adopter_id = create_resp.data["id"]
+        response = api_client.post("/api/adopters/", adopter_payload, format="json")
+        adopter_id = response.data["id"]
 
         delete_resp = api_client.delete(f"/api/adopters/{adopter_id}/")
         assert delete_resp.status_code == status.HTTP_204_NO_CONTENT
@@ -189,8 +189,8 @@ class TestDeleteAdopter:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_delete_adopter_by_id_idempotent(self, adopter_payload, api_client):
-        create_resp = api_client.post("/api/adopters/", adopter_payload, format="json")
-        adopter_id = create_resp.data["id"]
+        response = api_client.post("/api/adopters/", adopter_payload, format="json")
+        adopter_id = response.data["id"]
         api_client.delete(f"/api/adopters/{adopter_id}/")
         second_delete = api_client.delete(f"/api/adopters/{adopter_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND

@@ -174,8 +174,8 @@ class TestUpdateCaretaker:
 
 class TestDeleteCaretaker:
     def test_delete_caretaker_by_id_success(self, caretaker_payload, api_client):
-        create_resp = api_client.post("/api/caretakers/", caretaker_payload, format="json")
-        caretaker_id = create_resp.data["id"]
+        response = api_client.post("/api/caretakers/", caretaker_payload, format="json")
+        caretaker_id = response.data["id"]
 
         delete_resp = api_client.delete(f"/api/caretakers/{caretaker_id}/")
         assert delete_resp.status_code == status.HTTP_204_NO_CONTENT
@@ -188,8 +188,8 @@ class TestDeleteCaretaker:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_delete_caretaker_by_id_idempotent(self, caretaker_payload, api_client):
-        create_resp = api_client.post("/api/caretakers/", caretaker_payload, format="json")
-        caretaker_id = create_resp.data["id"]
+        response = api_client.post("/api/caretakers/", caretaker_payload, format="json")
+        caretaker_id = response.data["id"]
         api_client.delete(f"/api/caretakers/{caretaker_id}/")
         second_delete = api_client.delete(f"/api/caretakers/{caretaker_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
