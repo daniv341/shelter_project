@@ -83,8 +83,6 @@ class TestCreateDonation:
         payload = donation_payload.copy()
         del payload["mount"]
         response = api_client.post("/api/donations/", payload, format="json")
-        print(response.json)
-        print(response.data)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_create_donation_empty_required_field(self, donation_payload, api_client):
@@ -202,3 +200,14 @@ class TestDeleteDonation:
         api_client.delete(f"/api/donations/{donation_id}/")
         second_delete = api_client.delete(f"/api/donations/{donation_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def adopter_1(db):
+    return Adopter.objects.create(full_name="micael rodriguez", dni="87654321", status="blocked")
+
+class TestBusinessRules: 
+    def test_create_donation_with_adopter_blocked(self, donation_payload, adopter_1, api_client):
+        payload = {**donation_payload, "adopter": adopter_1.id}
+        response = api_client.post("/api/donations/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

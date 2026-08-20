@@ -21,7 +21,7 @@ def species(db):
 
 @pytest.fixture
 def animal(db, species):
-        return Animal.objects.create(name="orion", sex="male", species=species, adoption_status="available", medical_status="healthy")
+        return Animal.objects.create(name="orion", sex="male", species=species, adoption_status="reserved", medical_status="healthy")
 
 @pytest.fixture
 def caretaker(db):
@@ -213,3 +213,41 @@ class TestDeleteCaretakerAssignment:
         api_client.delete(f"/api/caretaker_assignments/{caretaker_assignment_id}/")
         second_delete = api_client.delete(f"/api/caretaker_assignments/{caretaker_assignment_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def animal_1(db, species):
+        return Animal.objects.create(name="kity", sex="female", species=species, adoption_status="available", medical_status="healthy")
+
+@pytest.fixture
+def caretaker_1(db):
+    return Caretaker.objects.create(full_name="micael rodriguez", dni="87654321", status="blocked")
+
+class TestBusinessRules:
+    def test_create_caretaker_assignment_with_animal_no_reserved(self, caretaker_assignment_payload, animal_1, api_client):
+        payload = {**caretaker_assignment_payload, "animal": animal_1.id}
+        response = api_client.post("/api/caretaker_assignments/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_caretaker_assignment_with_caretaker_blocked(self, caretaker_assignment_payload, caretaker_1, api_client):
+        payload = {**caretaker_assignment_payload, "caretaker": caretaker_1.id}
+        response = api_client.post("/api/caretaker_assignments/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_verified_caretaker_assignment_animal(self, caretaker_assignment_payload, api_client):
+        response = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        animal_id = response.data["animal"]["id"]
+        response = api_client.get(f"/api/animals/{animal_id}/")
+        data = response.data
+        assert data["adoption_status"] == Animal.AdoptionStatus.NOT_AVAILABLE
+
+    def test_verified_caretaker_assignment_after_finished(self, caretaker_assignment_payload, created_caretaker_assignment, api_client):
+        caretaker_assignment_id = created_caretaker_assignment["id"]
+        update_payload = {"status": CaretakerAssignment.Status.FINISHED}
+        response = api_client.patch(f"/api/caretaker_assignments/{caretaker_assignment_id}/", update_payload, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        response = api_client.post("/api/caretaker_assignments/", caretaker_assignment_payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+
+

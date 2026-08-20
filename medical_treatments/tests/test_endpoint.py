@@ -217,3 +217,32 @@ class TestDeleteMedicalTreatment:
         api_client.delete(f"/api/medical_treatments/{medical_treatment_id}/")
         second_delete = api_client.delete(f"/api/medical_treatments/{medical_treatment_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def animal_1(db, species):
+        return Animal.objects.create(name="orion", sex="male", species=species, adoption_status="adopted", medical_status="healthy")
+
+@pytest.fixture
+def veterinarian_1(db):
+    return Veterinarian.objects.create(full_name="micael rodriguez", dni="87654321", status="blocked")
+
+class TestBusinessRules:
+    def test_create_medical_treatment_with_animal_adopted(self, medical_treatment_payload, animal_1, api_client):
+        payload = {**medical_treatment_payload, "animal": animal_1.id}
+        response = api_client.post("/api/medical_treatments/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_medical_treatment_with_veterinarian_blocked(self, medical_treatment_payload, veterinarian_1, api_client):
+        payload = {**medical_treatment_payload, "veterinarian": veterinarian_1.id}
+        response = api_client.post("/api/medical_treatments/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_verified_medical_status_animal(self, medical_treatment_payload, api_client):
+        response = api_client.post("/api/medical_treatments/", medical_treatment_payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        animal_id = response.data["animal"]["id"]
+        response = api_client.get(f"/api/animals/{animal_id}/")
+        data = response.data
+        assert data["medical_status"] == Animal.MedicalStatus.IN_TREATMENT
+        

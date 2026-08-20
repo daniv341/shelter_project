@@ -29,7 +29,7 @@ def adopter(db):
 
 @pytest.fixture
 def adoption_application(db, animal, adopter):
-    return AdoptionApplication.objects.create(animal=animal, adopter=adopter, status="submitted")
+    return AdoptionApplication.objects.create(animal=animal, adopter=adopter, status="revision")
 
 @pytest.fixture
 def api_client() -> APIClient:
@@ -219,3 +219,64 @@ class TestDeleteAdoptionEvent:
         api_client.delete(f"/api/adoption_events/{adoption_event_id}/")
         second_delete = api_client.delete(f"/api/adoption_events/{adoption_event_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def animal_1(db, species):
+        return Animal.objects.create(name="kity", sex="female", species=species, adoption_status="adopted", medical_status="healthy")
+
+@pytest.fixture
+def animal_2(db, species):
+        return Animal.objects.create(name="timoteo", sex="male", species=species, adoption_status="available", medical_status="in_treatment")
+
+@pytest.fixture
+def adopter_1(db):
+    return Adopter.objects.create(full_name="micael rodriguez", dni="87654321", status="blocked")
+
+@pytest.fixture
+def adoption_application_1(db, animal, adopter):
+    return AdoptionApplication.objects.create(animal=animal, adopter=adopter, status="submitted")
+
+class TestBusinessRules:
+    def test_create_adoption_event_with_animal_adopted(self, adoption_event_payload, animal_1, api_client):
+        payload = {**adoption_event_payload, "animal": animal_1.id}
+        response = api_client.post("/api/adoption_events/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_adoption_event_with_animal_no_healthy(self, adoption_event_payload, animal_2, api_client):
+        payload = {**adoption_event_payload, "animal": animal_2.id}
+        response = api_client.post("/api/adoption_events/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_adoption_event_with_adopter_blocked(self, adoption_event_payload, adopter_1, api_client):
+        payload = {**adoption_event_payload, "adopter": adopter_1.id}
+        response = api_client.post("/api/adoption_events/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_adoption_event_with_adoption_application_no_revision(self, adoption_event_payload,adoption_application_1, api_client):
+        payload = {**adoption_event_payload, "adoption_application": adoption_application_1.id}
+        response = api_client.post("/api/adoption_events/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_adoption_event_closed(self, adoption_event_payload, api_client):
+        payload = {**adoption_event_payload, "status": "closed"}
+        response = api_client.post("/api/adoption_events/", payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        adoption_event_id = response.data["id"]
+        update_payload = {"notes": "nota actualizada"}
+        response = api_client.patch(f"/api/adoption_events/{adoption_event_id}/", update_payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_verified_adoption_event_animal(self, created_adoption_event, api_client):
+        adoption_event_id = created_adoption_event["id"]
+        payload = {"status": AdoptionEvent.Status.CLOSED}
+        response_primary = api_client.patch(f"/api/adoption_events/{adoption_event_id}/", payload, format="json")
+        assert response_primary.status_code == status.HTTP_200_OK
+        animal_id = response_primary.data["animal"]["id"]
+        response = api_client.get(f"/api/animals/{animal_id}/")
+        data = response.data
+        assert data["adoption_status"] == Animal.AdoptionStatus.ADOPTED
+        adoption_application_id = response_primary.data["adoption_application"]["id"]
+        response = api_client.get(f"/api/adoption_applications/{adoption_application_id}/")
+        data = response.data
+        assert data["status"] == AdoptionApplication.Status.CLOSED

@@ -14,22 +14,17 @@ pytestmark = pytest.mark.django_db
 
 # funcion que crea las species necesarias para probar animals
 @pytest.fixture
-def species_list(db):
-    return [
-        Species.objects.create(name="perro", status="active"),
-        Species.objects.create(name="gato", status="active"),
-        Species.objects.create(name="conejo", status="active"),
-    ]
+def species(db):
+    return Species.objects.create(name="gato", status="active")
 
 @pytest.fixture
 def api_client() -> APIClient:
     return APIClient()
 
 @pytest.fixture
-def make_payload(species_list):
+def make_payload(species):
     def _make_payload(**overrides):
         """Payload mínimo válido para crear un animal."""
-        species = random.choice(species_list)
         payload = {
             "name": "jasmin",
             "species": species.id,
@@ -46,10 +41,9 @@ def make_payload(species_list):
     return _make_payload
 
 @pytest.fixture
-def make_optional_only_payload(species_list):
+def make_optional_only_payload(species):
     def _make_optional_only_payload(**overrides) -> dict:
         """Payload solo con los campos requeridos, sin los opcionales."""
-        species = random.choice(species_list)
         payload = {
             "name": "jasmin",
             "species": species.id,
@@ -219,3 +213,33 @@ class TestDeleteAnimal:
         api_client.delete(f"/api/animals/{animal_id}/")
         second_delete = api_client.delete(f"/api/animals/{animal_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def species_1(db):
+    return Species.objects.create(name="hamster", status="blocked")
+
+class TestBusinessRules:
+    def test_create_animal_with_species_blocked(self, animal_payload, api_client, species_1):
+        payload = {**animal_payload, "species": species_1.id}
+        response = api_client.post("/api/animals/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_animal_adopted(self, animal_payload, api_client):
+        payload = {**animal_payload, "adoption_status": "adopted"}
+        response = api_client.post("/api/animals/", payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        animal_id = response.data["id"]
+        update_payload = {"name": "rodrigito"}
+        response = api_client.patch(f"/api/animals/{animal_id}/", update_payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_animal_in_treatment_to_adopted(self, animal_payload, api_client):
+        payload = {**animal_payload, "medical_status": "in_treatment"}
+        response = api_client.post("/api/animals/", payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        animal_id = response.data["id"]
+        update_payload = {"adoption_status": "adopted"}
+        response = api_client.patch(f"/api/animals/{animal_id}/", update_payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+

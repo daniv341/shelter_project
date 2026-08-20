@@ -1,8 +1,11 @@
 from __future__ import annotations
 from typing import Any
+from rest_framework.exceptions import ValidationError
 from species.repositories import SpeciesRepository
 from species.selectors import SpeciesSelector
 
+from species.models import Species
+from animals.models import Animal
 
 class SpeciesService:
     def __init__(self, repository: SpeciesRepository | None = None, selector: SpeciesSelector | None = None) -> None:
@@ -20,6 +23,11 @@ class SpeciesService:
 
     def update_species(self, species_id: str, data: dict[str, Any]):
         species = self.selector.get_by_id(species_id)
+        new_status = data.get("status")
+
+        if new_status == Species.Status.BLOCKED and species.Status == Species.Status.ACTIVE:
+            if Animal.objects.filter(species=species).exists():
+                    raise ValidationError("No se puede eliminar una Species que todavia tenga Animals asociados")
         return self.repository.update(species, data)
 
     def delete_species(self, species_id: str) -> None:

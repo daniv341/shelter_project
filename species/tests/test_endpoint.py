@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from species.models import Species
+from animals.models import Animal
 
 pytestmark = pytest.mark.django_db
 
@@ -168,3 +169,17 @@ class TestDeleteSpecies:
         api_client.delete(f"/api/species/{species_id}/")
         second_delete = api_client.delete(f"/api/species/{species_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.fixture
+def species_1(db):
+    return Species.objects.create(name="hamster", status="active")
+
+@pytest.fixture
+def animal_1(db, species_1):
+        return Animal.objects.create(name="orion", sex="male", species=species_1, adoption_status="available", medical_status="healthy")
+
+class TestBusinessRules:
+    def test_updated_species_with_status_blocked(self, api_client, species_1):
+        update_payload = {"status": "inactive"}
+        response = api_client.patch(f"/api/species/{species_1.id}/", update_payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

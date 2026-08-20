@@ -216,3 +216,42 @@ class TestDeleteAdoptionApplication:
         api_client.delete(f"/api/adoption_applications/{adoption_application_id}/")
         second_delete = api_client.delete(f"/api/adoption_applications/{adoption_application_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def animal_1(db, species):
+        return Animal.objects.create(name="kity", sex="female", species=species, adoption_status="adopted", medical_status="healthy")
+
+@pytest.fixture
+def animal_2(db, species):
+        return Animal.objects.create(name="timoteo", sex="male", species=species, adoption_status="available", medical_status="in_treatment")
+
+@pytest.fixture
+def adopter_1(db):
+    return Adopter.objects.create(full_name="micael rodriguez", dni="87654321", status="blocked")
+
+class TestBusinessRules:
+    def test_create_adoption_application_with_animal_adopted(self, adoption_application_payload, animal_1, api_client):
+        payload = {**adoption_application_payload, "animal": animal_1.id}
+        response = api_client.post("/api/adoption_applications/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_adoption_application_with_animal_no_healthy(self, adoption_application_payload, animal_2, api_client):
+        payload = {**adoption_application_payload, "animal": animal_2.id}
+        response = api_client.post("/api/adoption_applications/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_create_adoption_application_with_adopter_blocked(self, adoption_application_payload, adopter_1, api_client):
+        payload = {**adoption_application_payload, "adopter": adopter_1.id}
+        response = api_client.post("/api/adoption_applications/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_update_adoption_application_closed(self, adoption_application_payload, api_client):
+        payload = {**adoption_application_payload, "status": "closed"}
+        response = api_client.post("/api/adoption_applications/", payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        adoption_application_id = response.data["id"]
+        update_payload = {"notes": "nota actualizada"}
+        response = api_client.patch(f"/api/adoption_applications/{adoption_application_id}/", update_payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        

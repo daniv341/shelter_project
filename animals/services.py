@@ -10,12 +10,14 @@ from __future__ import annotations
 from typing import Any
 
 from django.db.models import QuerySet
-from jsonschema import ValidationError
+from rest_framework.exceptions import ValidationError
 
 from animals.models import Animal
 from animals.repositories import AnimalRepository
 from animals.selectors import AnimalSelector
 
+from species.models import Species
+from species.services import SpeciesService
 
 class AnimalService:
     """Coordina la lógica de negocio relacionada con Animal."""
@@ -35,12 +37,21 @@ class AnimalService:
         return self.selector.get_by_id(animal_id)
 
     def create_animal(self, data: dict[str, Any]) -> Animal:
+        species = data.get("species")
+        if species.status == Species.Status.BLOCKED:
+            raise ValidationError("No se puede crear un Animal con una Species BLOCKED")
         return self.repository.create(data)
 
     def update_animal(self, animal_id: str, data: dict[str, Any]) -> Animal:
-        animal = self.selector.get_by_id(animal_id)
-        #if animal.adoption_status == Animal.AdoptionStatus.ADOPTED:
-        #    raise ValidationError("An adopted animal cannot be modified.")  
+        animal = self.selector.get_by_id(animal_id) 
+        new_adoption_status = data.get("adoption_status")
+        adoption_status = animal.adoption_status
+        medical_status = animal.medical_status
+
+        if adoption_status == Animal.AdoptionStatus.ADOPTED:
+            raise ValidationError("No se puede actualizar un Animal ADOPTED")
+        if medical_status != Animal.MedicalStatus.HEALTHY and new_adoption_status == Animal.AdoptionStatus.ADOPTED:
+            raise ValidationError("No se puede adoptar un Animal que no este HEALTHY")
         return self.repository.update(animal, data)
 
     def delete_animal(self, animal_id: str) -> None:

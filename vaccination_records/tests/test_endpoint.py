@@ -215,3 +215,14 @@ class TestDeleteVaccinationRecord:
         api_client.delete(f"/api/vaccination_records/{vaccination_record_id}/")
         second_delete = api_client.delete(f"/api/vaccination_records/{vaccination_record_id}/")
         assert second_delete.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.fixture
+def animal_1(db, species):
+        return Animal.objects.create(name="orion", sex="male", species=species, adoption_status="adopted", medical_status="healthy")
+
+class TestBusinessRules:
+    def test_created_vaccination_record_with_animal_adopted(self, vaccination_record_payload, animal_1, api_client):
+        payload = {**vaccination_record_payload, "animal": animal_1.id}
+        response = api_client.post("/api/vaccination_records/", payload, format="json")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
